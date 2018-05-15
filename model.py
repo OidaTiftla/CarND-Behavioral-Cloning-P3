@@ -207,6 +207,13 @@ def main(_):
     print("Current model:")
     print(model.summary())
 
+    # # plot current model
+    # print("")
+    # from keras.utils.visualize_util import plot_model
+    # plot_file = output_model_file_without_ext + ".png"
+    # plot_model(model, to_file=plot_file, show_shapes=True, show_layer_names=True)
+    # print("Plotted model to disk: '" + plot_file + "'")
+
     es = EarlyStopping(monitor='val_loss',
         min_delta=0,
         patience=4,

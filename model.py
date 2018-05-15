@@ -131,7 +131,7 @@ def generator(samples, training_folder, batch_size=32, angle_offset=0.2):
 
 def main(_):
     if not(FLAGS.output_model_file is None):
-        output_model_file_without_ext = os.path.splitext(FLAGS.output_model_file)
+        output_model_file_without_ext = os.path.splitext(FLAGS.output_model_file)[0]
     else:
         output_model_file_without_ext = "model"
 

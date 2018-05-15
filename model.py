@@ -210,6 +210,7 @@ def main(_):
         save_weights_only=False,
         verbose=1, mode='auto')
 
+    print("")
     history = model.fit_generator(train_generator,
         samples_per_epoch=len(train_samples)*90,
         validation_data=validation_generator,
@@ -219,11 +220,13 @@ def main(_):
 
     if not(FLAGS.output_model_file is None):
         # serialize weights to HDF5
+        print("")
         model_file = output_model_file_without_ext + ".h5"
         model.save(model_file)
         print("Saved model to disk: '" + model_file + "'")
 
     # print the keys contained in the history object
+    print("")
     print(history.history.keys())
 
     # plot the training and validation loss for each epoch

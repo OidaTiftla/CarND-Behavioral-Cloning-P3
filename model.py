@@ -143,6 +143,7 @@ def main(_):
     from keras.layers import Lambda, Cropping2D
     from keras.layers.convolutional import Convolution2D
     from keras.layers.pooling import MaxPooling2D
+    from keras.callbacks import EarlyStopping, ModelCheckpoint
 
     if not(FLAGS.input_model_file is None):
         # load weights into new model
@@ -160,16 +161,19 @@ def main(_):
         # Preprocess incoming data, clip to ROI
         model.add(Cropping2D(cropping=((50,20), (0,0))))
         # Build the Neural Network in Keras Here
-        model.add(Convolution2D(10, 5, 5))
+        model.add(Convolution2D(24, 5, 5))
         model.add(MaxPooling2D((2, 2)))
         model.add(Activation('relu'))
-        model.add(Convolution2D(20, 5, 5))
+        model.add(Convolution2D(32, 5, 5))
         model.add(MaxPooling2D((2, 2)))
         model.add(Activation('relu'))
-        model.add(Convolution2D(30, 5, 5))
+        model.add(Convolution2D(48, 5, 5))
+        model.add(MaxPooling2D((2, 2)))
+        model.add(Activation('relu'))
+        model.add(Convolution2D(64, 3, 3))
         model.add(Dropout(0.3))
         model.add(Activation('relu'))
-        model.add(Convolution2D(30, 5, 5))
+        model.add(Convolution2D(64, 3, 3))
         model.add(Dropout(0.3))
         model.add(Activation('relu'))
 
@@ -189,11 +193,24 @@ def main(_):
 
         model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
 
+    es = EarlyStopping(monitor='val_loss',
+        min_delta=0,
+        patience=4,
+        verbose=1, mode='auto')
+
+    filepath="model-improvement-{epoch:02d}-{val_acc:.2f}.h5"
+    cp = ModelCheckpoint(filepath,
+        monitor='val_acc',
+        save_best_only=True,
+        save_weights_only=False,
+        verbose=1, mode='auto')
+
     history = model.fit_generator(train_generator,
         samples_per_epoch=len(train_samples)*90,
         validation_data=validation_generator,
         nb_val_samples=len(validation_samples)*90,
-        nb_epoch=FLAGS.epochs)
+        nb_epoch=FLAGS.epochs,
+        callbacks=[es, cp])
 
     if not(FLAGS.output_model_file is None):
         # serialize weights to HDF5

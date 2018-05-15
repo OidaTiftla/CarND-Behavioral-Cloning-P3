@@ -134,6 +134,10 @@ def main(_):
         output_model_file_without_ext = os.path.splitext(FLAGS.output_model_file)[0]
     else:
         output_model_file_without_ext = "model"
+    if not(FLAGS.input_model_file is None):
+        input_model_file_without_ext = os.path.splitext(FLAGS.input_model_file)[0]
+    else:
+        input_model_file_without_ext = "model"
 
     # load the samples
     train_samples, validation_samples = load(FLAGS.training_folder)
@@ -234,10 +238,21 @@ def main(_):
     print("")
     print(history.history.keys())
 
+    # combine history with history on disk
+    hist = {}
+    hist['loss'] = history.history['loss']
+    hist['val_loss'] = history.history['val_loss']
+    import pickle
+    if not(FLAGS.input_model_file is None):
+        hist_loaded = pickle.load(open(input_model_file_without_ext + "-history.p", 'rb'))
+        hist['loss'] = hist_loaded['loss'] + hist['loss']
+        hist['val_loss'] = hist_loaded['val_loss'] + hist['val_loss']
+    pickle.dump(hist, open(output_model_file_without_ext + "-history.p", 'wb'))
+
     # plot the training and validation loss for each epoch
     import matplotlib.pyplot as plt
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
+    plt.plot(hist['loss'])
+    plt.plot(hist['val_loss'])
     plt.title('model mean squared error loss')
     plt.ylabel('mean squared error loss')
     plt.xlabel('epoch')

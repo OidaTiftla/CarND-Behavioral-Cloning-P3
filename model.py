@@ -198,6 +198,11 @@ def main(_):
 
         model.compile(loss='mse', optimizer='adam')
 
+    # output current model
+    print("")
+    print("Current model:")
+    print(model.summary())
+
     es = EarlyStopping(monitor='val_loss',
         min_delta=0,
         patience=4,

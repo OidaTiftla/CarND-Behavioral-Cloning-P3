@@ -196,16 +196,16 @@ def main(_):
         model.add(Dense(1))
         model.add(Activation('tanh'))
 
-        model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss='mse', optimizer='adam')
 
     es = EarlyStopping(monitor='val_loss',
         min_delta=0,
         patience=4,
         verbose=1, mode='auto')
 
-    filepath = output_model_file_without_ext + "-checkpoint-{epoch:02d}-{val_acc:.2f}.h5"
+    filepath = output_model_file_without_ext + "-checkpoint-{epoch:02d}-{val_loss:.3f}.h5"
     cp = ModelCheckpoint(filepath,
-        monitor='val_acc',
+        monitor='val_loss',
         save_best_only=True,
         save_weights_only=False,
         verbose=1, mode='auto')

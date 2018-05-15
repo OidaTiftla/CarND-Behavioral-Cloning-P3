@@ -130,6 +130,11 @@ def generator(samples, training_folder, batch_size=32, angle_offset=0.2):
                 yield X_train, y_train
 
 def main(_):
+    if not(FLAGS.output_model_file is None):
+        output_model_file_without_ext = os.path.splitext(FLAGS.output_model_file)
+    else:
+        output_model_file_without_ext = "model"
+
     # load the samples
     train_samples, validation_samples = load(FLAGS.training_folder)
 
@@ -198,7 +203,7 @@ def main(_):
         patience=4,
         verbose=1, mode='auto')
 
-    filepath="model-improvement-{epoch:02d}-{val_acc:.2f}.h5"
+    filepath = output_model_file_without_ext + "-checkpoint-{epoch:02d}-{val_acc:.2f}.h5"
     cp = ModelCheckpoint(filepath,
         monitor='val_acc',
         save_best_only=True,
@@ -214,8 +219,9 @@ def main(_):
 
     if not(FLAGS.output_model_file is None):
         # serialize weights to HDF5
-        model.save(FLAGS.output_model_file)
-        print("Saved model to disk")
+        model_file = output_model_file_without_ext + ".h5"
+        model.save(model_file)
+        print("Saved model to disk: '" + model_file + "'")
 
     # print the keys contained in the history object
     print(history.history.keys())

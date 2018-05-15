@@ -236,20 +236,12 @@ def main(_):
 
     # plot the training and validation loss for each epoch
     import matplotlib.pyplot as plt
-    plt.subplot(211)
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
     plt.title('model mean squared error loss')
     plt.ylabel('mean squared error loss')
     plt.xlabel('epoch')
-    plt.legend(['training set', 'validation set'], loc='lower right')
-    plt.subplot(212)
-    plt.plot(history.history['acc'])
-    plt.plot(history.history['val_acc'])
-    plt.title('model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
-    plt.legend(['training set', 'validation set'], loc='lower right')
+    plt.legend(['training set', 'validation set'], loc='upper right')
     plt.show()
 
 

@@ -181,15 +181,15 @@ def main(_):
 
         model.add(Dense(128))
         model.add(Dropout(0.3))
-        model.add(Activation('relu'))
+        model.add(Activation('tanh'))
         model.add(Dense(64))
         model.add(Dropout(0.3))
-        model.add(Activation('relu'))
+        model.add(Activation('tanh'))
         model.add(Dense(32))
         model.add(Dropout(0.3))
-        model.add(Activation('relu'))
+        model.add(Activation('tanh'))
         model.add(Dense(1))
-        model.add(Activation('softmax'))
+        model.add(Activation('tanh'))
 
         model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
 

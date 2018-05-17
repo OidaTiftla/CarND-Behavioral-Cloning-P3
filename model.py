@@ -127,7 +127,35 @@ def generator(samples, batch_size=32, angle_offset=0.2, training=True):
                 y_train = np.array(batch_angles)
                 yield X_train, y_train
 
+hist = {}
+def log_history_start(input_file=None):
+    global hist
+    hist['loss'] = []
+    hist['val_loss'] = []
+    if not(input_file is None):
+        import pickle
+        hist_loaded = pickle.load(open(input_file + "-history.p", 'rb'))
+        hist['loss'] = hist_loaded['loss']
+        hist['val_loss'] = hist_loaded['val_loss']
+
+def log_history_add(loss, val_loss):
+    global hist
+    hist['loss'].append(loss)
+    hist['val_loss'].append(val_loss)
+
+def log_history_save(output_file=None):
+    global hist
+    if not(output_file is None):
+        import pickle
+        pickle.dump(hist, open(output_file + "-history.p", 'wb'))
+
+def log_history_add_save(loss, val_loss, output_file=None):
+    log_history_add(loss, val_loss)
+    log_history_save(output_file)
+
 def main(_):
+    global hist
+    # split file extension
     if not(FLAGS.output_model_file is None):
         output_model_file_without_ext = os.path.splitext(FLAGS.output_model_file)[0]
     else:
@@ -157,6 +185,9 @@ def main(_):
         train_samples.extend(ts)
         validation_samples.extend(vs)
 
+    # load history
+    log_history_start(input_model_file_without_ext)
+
     # compile and train the model using the generator function
     train_generator = generator(train_samples, batch_size=FLAGS.batch_size, training=True)
     validation_generator = generator(validation_samples, batch_size=FLAGS.batch_size, training=False)
@@ -167,7 +198,7 @@ def main(_):
     from keras.layers import Lambda, Cropping2D
     from keras.layers.convolutional import Convolution2D
     from keras.layers.pooling import MaxPooling2D
-    from keras.callbacks import EarlyStopping, ModelCheckpoint
+    from keras.callbacks import EarlyStopping, ModelCheckpoint, LambdaCallback
 
     if not(FLAGS.input_model_file is None):
         # load weights into new model
@@ -221,6 +252,8 @@ def main(_):
     print("")
     print("Current model:")
     print(model.summary())
+    print("")
+    print("Current model was previously trained for {epochs} epochs".format(epochs=len(hist['loss'])))
 
     # # plot current model
     # print("")
@@ -229,17 +262,25 @@ def main(_):
     # plot_model(model, to_file=plot_file, show_shapes=True, show_layer_names=True)
     # print("Plotted model to disk: '" + plot_file + "'")
 
+    filepath_per_epoch = output_model_file_without_ext + "-checkpoint-{epoch:02d}-{val_loss:.3f}"
+
     es = EarlyStopping(monitor='val_loss',
         min_delta=0,
         patience=4,
         verbose=1, mode='auto')
 
-    filepath = output_model_file_without_ext + "-checkpoint-{epoch:02d}-{val_loss:.3f}.h5"
-    cp = ModelCheckpoint(filepath,
+    cp = ModelCheckpoint(filepath_per_epoch + '.h5',
         monitor='val_loss',
         save_best_only=True,
         save_weights_only=False,
         verbose=1, mode='auto')
+
+    lc = LambdaCallback(
+        on_epoch_end=lambda epoch, logs:
+            log_history_add_save(
+                logs['loss'], logs['val_loss'],
+                filepath_per_epoch.format(epoch=epoch, loss=logs['loss'], val_loss=logs['val_loss']))
+    )
 
     print("")
     history = model.fit_generator(train_generator,
@@ -247,9 +288,9 @@ def main(_):
         validation_data=validation_generator,
         nb_val_samples=len(validation_samples)*90,
         nb_epoch=FLAGS.epochs,
-        callbacks=[es, cp])
+        callbacks=[es, cp, lc])
 
-    if not(FLAGS.output_model_file is None):
+    if not(output_model_file_without_ext is None):
         # serialize weights to HDF5
         print("")
         model_file = output_model_file_without_ext + ".h5"
@@ -261,15 +302,7 @@ def main(_):
     print(history.history.keys())
 
     # combine history with history on disk
-    hist = {}
-    hist['loss'] = history.history['loss']
-    hist['val_loss'] = history.history['val_loss']
-    import pickle
-    if not(FLAGS.input_model_file is None):
-        hist_loaded = pickle.load(open(input_model_file_without_ext + "-history.p", 'rb'))
-        hist['loss'] = hist_loaded['loss'] + hist['loss']
-        hist['val_loss'] = hist_loaded['val_loss'] + hist['val_loss']
-    pickle.dump(hist, open(output_model_file_without_ext + "-history.p", 'wb'))
+    log_history_save(output_model_file_without_ext)
 
     # plot the training and validation loss for each epoch
     import matplotlib.pyplot as plt

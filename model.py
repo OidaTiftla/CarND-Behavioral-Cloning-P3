@@ -47,7 +47,7 @@ def zoom_img(image, factor):
     image = image[int(start[0]):int(end[0]),int(start[1]):int(end[1])]
     return cv2.resize(image, orig_shape[::-1])
 
-def generator(samples, training_folder, batch_size=32, angle_offset=0.2):
+def generator(samples, training_folder, batch_size=32, angle_offset=0.2, training=True):
     num_samples = len(samples)
     while 1: # Loop forever so the generator never terminates
         sklearn.utils.shuffle(samples)
@@ -84,42 +84,43 @@ def generator(samples, training_folder, batch_size=32, angle_offset=0.2):
                 images.append(right_image)
                 angles.append(right_angle)
 
-            # augment images
-            # flip
-            new_images = []
-            new_angles = []
-            for img in images:
-                new_images.append(flip_img(img))
-            for angle in angles:
-                new_angles.append(-angle)
-            images += new_images
-            angles += new_angles
-            # rotate
-            new_images = []
-            new_angles = []
-            for img in images:
-                new_images.append(rotate_img(img, -5))
-                new_images.append(rotate_img(img, 5))
-            for angle in angles:
-                new_angles.append(angle)
-                new_angles.append(angle)
-            images += new_images
-            angles += new_angles
-            # zoom
-            new_images = []
-            new_angles = []
-            for img in images:
-                new_images.append(zoom_img(img, 0.8))
-                new_images.append(zoom_img(img, 0.9))
-                new_images.append(zoom_img(img, 1.1))
-                new_images.append(zoom_img(img, 1.2))
-            for angle in angles:
-                new_angles.append(angle)
-                new_angles.append(angle)
-                new_angles.append(angle)
-                new_angles.append(angle)
-            images += new_images
-            angles += new_angles
+            if training:
+                # augment images
+                # flip
+                new_images = []
+                new_angles = []
+                for img in images:
+                    new_images.append(flip_img(img))
+                for angle in angles:
+                    new_angles.append(-angle)
+                images += new_images
+                angles += new_angles
+                # rotate
+                new_images = []
+                new_angles = []
+                for img in images:
+                    new_images.append(rotate_img(img, -5))
+                    new_images.append(rotate_img(img, 5))
+                for angle in angles:
+                    new_angles.append(angle)
+                    new_angles.append(angle)
+                images += new_images
+                angles += new_angles
+                # zoom
+                new_images = []
+                new_angles = []
+                for img in images:
+                    new_images.append(zoom_img(img, 0.8))
+                    new_images.append(zoom_img(img, 0.9))
+                    new_images.append(zoom_img(img, 1.1))
+                    new_images.append(zoom_img(img, 1.2))
+                for angle in angles:
+                    new_angles.append(angle)
+                    new_angles.append(angle)
+                    new_angles.append(angle)
+                    new_angles.append(angle)
+                images += new_images
+                angles += new_angles
 
             images, angles = sklearn.utils.shuffle(images, angles)
             for offset2 in range(0, len(images), batch_size):
@@ -146,8 +147,8 @@ def main(_):
     train_samples, validation_samples = load(FLAGS.training_folder)
 
     # compile and train the model using the generator function
-    train_generator = generator(train_samples, FLAGS.training_folder, batch_size=FLAGS.batch_size)
-    validation_generator = generator(validation_samples, FLAGS.training_folder, batch_size=FLAGS.batch_size)
+    train_generator = generator(train_samples, FLAGS.training_folder, batch_size=FLAGS.batch_size, training=True)
+    validation_generator = generator(validation_samples, FLAGS.training_folder, batch_size=FLAGS.batch_size, training=False)
 
     # Initial Setup for Keras
     from keras.models import Sequential

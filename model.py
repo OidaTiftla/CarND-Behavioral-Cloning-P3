@@ -47,7 +47,7 @@ def zoom_img(image, factor):
     image = image[int(start[0]):int(end[0]),int(start[1]):int(end[1])]
     return cv2.resize(image, orig_shape[::-1])
 
-def generator(samples, training_folder, batch_size=32, angle_offset=0.2, training=True):
+def generator(samples, batch_size=32, angle_offset=0.2, training=True):
     num_samples = len(samples)
     while 1: # Loop forever so the generator never terminates
         sklearn.utils.shuffle(samples)
@@ -57,8 +57,7 @@ def generator(samples, training_folder, batch_size=32, angle_offset=0.2, trainin
             images = []
             angles = []
             for batch_sample in batch_samples:
-                name = training_folder + '/IMG/' + batch_sample[0].split('/')[-1]
-                center_image = cv2.imread(name)
+                center_image = cv2.imread(batch_sample[0])
                 if center_image is None:
                     continue
                 center_image = cv2.cvtColor(center_image, cv2.COLOR_BGR2RGB)
@@ -66,8 +65,7 @@ def generator(samples, training_folder, batch_size=32, angle_offset=0.2, trainin
                 images.append(center_image)
                 angles.append(center_angle)
 
-                name = training_folder + '/IMG/' + batch_sample[1].split('/')[-1]
-                left_image = cv2.imread(name)
+                left_image = cv2.imread(batch_sample[1])
                 if left_image is None:
                     continue
                 left_image = cv2.cvtColor(left_image, cv2.COLOR_BGR2RGB)
@@ -75,8 +73,7 @@ def generator(samples, training_folder, batch_size=32, angle_offset=0.2, trainin
                 images.append(left_image)
                 angles.append(left_angle)
 
-                name = training_folder + '/IMG/' + batch_sample[2].split('/')[-1]
-                right_image = cv2.imread(name)
+                right_image = cv2.imread(batch_sample[2])
                 if right_image is None:
                     continue
                 right_image = cv2.cvtColor(right_image, cv2.COLOR_BGR2RGB)
@@ -143,12 +140,26 @@ def main(_):
     import time
     output_model_file_without_ext += '_' + time.strftime("%Y-%m-%d_%H-%M")
 
-    # load the samples
-    train_samples, validation_samples = load(FLAGS.training_folder)
+    # load the samples from multiple folders
+    train_samples = []
+    validation_samples = []
+    for folder in FLAGS.training_folder.split(','):
+        ts, vs = load(folder)
+        # adjust path to img
+        for sample in ts:
+            sample[0] = folder + '/IMG/' + sample[0].split('/')[-1]
+            sample[1] = folder + '/IMG/' + sample[1].split('/')[-1]
+            sample[2] = folder + '/IMG/' + sample[2].split('/')[-1]
+        for sample in vs:
+            sample[0] = folder + '/IMG/' + sample[0].split('/')[-1]
+            sample[1] = folder + '/IMG/' + sample[1].split('/')[-1]
+            sample[2] = folder + '/IMG/' + sample[2].split('/')[-1]
+        train_samples.extend(ts)
+        validation_samples.extend(vs)
 
     # compile and train the model using the generator function
-    train_generator = generator(train_samples, FLAGS.training_folder, batch_size=FLAGS.batch_size, training=True)
-    validation_generator = generator(validation_samples, FLAGS.training_folder, batch_size=FLAGS.batch_size, training=False)
+    train_generator = generator(train_samples, batch_size=FLAGS.batch_size, training=True)
+    validation_generator = generator(validation_samples, batch_size=FLAGS.batch_size, training=False)
 
     # Initial Setup for Keras
     from keras.models import Sequential

@@ -137,7 +137,10 @@ def main(_):
     if not(FLAGS.input_model_file is None):
         input_model_file_without_ext = os.path.splitext(FLAGS.input_model_file)[0]
     else:
-        input_model_file_without_ext = "model"
+        input_model_file_without_ext = None
+    # add date and time
+    import time
+    output_model_file_without_ext += '_' + time.strftime("%Y-%m-%d_%H-%M")
 
     # load the samples
     train_samples, validation_samples = load(FLAGS.training_folder)

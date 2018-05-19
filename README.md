@@ -205,6 +205,9 @@ without changing the size of the training set or the augmentation script.
 
 After another 20 (20/30) epochs on the complete data set, I decided to train the model on only on the ```data_challenge```-folder, because the network did not make any improvements on the track two.
 
+The training data of the track two (challenge) does not include samples from the whole track.
+This is an extra validation, if the model correctly abstracts the image contents.
+
 After training it for about another 30 (30/30) epochs on the reduced data set, the vehicle was able to drive most of the track two.
 Transfere learning was successfull.
 It got off-track in a very tight curve.

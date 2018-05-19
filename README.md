@@ -144,14 +144,14 @@ Non-trainable params: 0
 
 To capture good driving behavior, first one lap and one lap reversed on track one was recorded using center lane driving. Here is an example image of center lane driving:
 
-![data_simple/IMG/center_2018_05_17_06_48_30_742.jpg](data_simple/IMG/center_2018_05_17_06_48_30_742.jpg)
+![examples/center_2018_05_17_06_48_30_742.jpg](examples/center_2018_05_17_06_48_30_742.jpg)
 
 Afterwards some sample data from the track two was recorded, so that the vehicle would learn to abstract the environment.
 These images show examples:
 
-![data_challenge/IMG/center_2018_05_17_07_05_41_698.jpg](data_challenge/IMG/center_2018_05_17_07_05_41_698.jpg)
-<!-- ![data_challenge/IMG/center_2018_05_17_07_04_57_986.jpg](data_challenge/IMG/center_2018_05_17_07_04_57_986.jpg) -->
-<!-- ![data_challenge/IMG/center_2018_05_17_06_55_14_561.jpg](data_challenge/IMG/center_2018_05_17_06_55_14_561.jpg) -->
+![examples/center_2018_05_17_07_05_41_698.jpg](examples/center_2018_05_17_07_05_41_698.jpg)
+<!-- ![examples/center_2018_05_17_07_04_57_986.jpg](examples/center_2018_05_17_07_04_57_986.jpg) -->
+<!-- ![examples/center_2018_05_17_06_55_14_561.jpg](examples/center_2018_05_17_06_55_14_561.jpg) -->
 
 To augment the dataset, the images and angles were flipped thinking that this would remove the bias to one side within the training set.
 

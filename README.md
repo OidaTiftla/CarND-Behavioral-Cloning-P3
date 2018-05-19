@@ -39,9 +39,9 @@ The model.py file contains the code for training and saving the convolution neur
 
 The model consists of a convolution neural network with 5x5 and 3x3 filter sizes and depths between 24 and 64 (model.py lines 211-247).
 
-The model includes 5 RELU layers to introduce nonlinearity (code line 221), and the data is normalized in the model using a Keras lambda layer (code line 213).
-The input images are cropped using a Keras Cropping2D layer (code line 217).
-The model includes 4 TANH activation layers, so the output of the network fits the expected steering angles [-1..1] (code line 239).
+The model includes 5 RELU layers to introduce nonlinearity (model.py line 221), and the data is normalized in the model using a Keras lambda layer (model.py line 213).
+The input images are cropped using a Keras Cropping2D layer (model.py line 217).
+The model includes 4 TANH activation layers, so the output of the network fits the expected steering angles [-1..1] (model.py line 239).
 
 ### 2. Attempts to reduce overfitting in the model
 
@@ -62,7 +62,7 @@ The model used an adam optimizer, so the learning rate was not tuned manually (m
 ### 4. Appropriate training data
 
 Training data was chosen to keep the vehicle driving on the road. A combination of center lane driving, recovering from the left and right sides of the road.
-Additionally image augmentation (flipping, rotation, zooming) was used to increase the training samples and harden the neural network (code lines 85 - 120).
+Additionally image augmentation (flipping, rotation, zooming) was used to increase the training samples and harden the neural network (model.py lines 85 - 120).
 
 For details about how I created the training data, see the next section.
 

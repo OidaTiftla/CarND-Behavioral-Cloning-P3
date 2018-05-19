@@ -226,11 +226,11 @@ After epoch 20 the training loss jups to approximatily 0.1 because the dataset w
 
 ```sh
 # 4 epochs
-python drive.py model_2018-05-17_09-04-checkpoint-01-0.047.h5 video_9mph
+python drive.py model.h5 video_9mph
 # 4 epochs
-python drive.py model_2018-05-17_09-04-checkpoint-01-0.047.h5 video_20mph
+python drive.py model.h5 video_20mph
 # 6 epochs
-python drive.py model_2018-05-18_14-33-checkpoint-02-0.038.h5 video_challenge_9mph
+python drive.py model_challenge.h5 video_challenge_9mph
 ```
 
 ## Dependencies
